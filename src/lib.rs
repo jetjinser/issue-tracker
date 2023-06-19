@@ -1,4 +1,4 @@
-use std::{collections::HashSet, env};
+use std::{collections::HashSet, env, time::Duration};
 
 use discord_flows::http::{Http, HttpBuilder};
 use flowsnet_platform_sdk::logger;
@@ -10,6 +10,7 @@ use github_flows::{
     EventPayload, GithubLogin,
 };
 use store_flows as store;
+use tokio::time::sleep;
 
 struct App {
     discord: Http,
@@ -164,6 +165,8 @@ impl App {
                     log::debug!("Unassigned action done");
                 }
                 IssuesEventAction::Labeled => {
+                    // delay before get channel_id from store-flows to prevent multiple start_thread
+                    sleep(Duration::from_secs(7)).await;
                     let channel_id = store::get(&format!("{}:channel", iep.issue.id));
 
                     if let Some(cid) = channel_id {
