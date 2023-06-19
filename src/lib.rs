@@ -81,17 +81,16 @@ impl App {
         log::debug!("issue `{}` labels: {:?}", iep.issue.title, labels);
 
         let labels = HashSet::from_iter(labels.iter().map(|lb| lb.name.clone()));
-        let labelled_in_x = labels.intersection(&self.x_labels);
-        let labelled: Vec<&String> = labelled_in_x.collect();
+        let labelled_in_x = labels.intersection(&self.x_labels).count().eq(&0);
 
-        let labelled_msg = labelled
+        let labelled_msg = labels
             .iter()
             .map(|label| format!("`{}`", label))
             .collect::<Vec<String>>()
             .join(", ");
         log::debug!("labelled_msg: {}", &labelled_msg);
 
-        if !labelled.is_empty() {
+        if !labelled_in_x {
             match iep.action {
                 IssuesEventAction::Closed => {
                     let thread_channel_id = store::get(&format!("{}:channel", iep.issue.id));
